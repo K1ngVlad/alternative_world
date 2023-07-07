@@ -91,6 +91,13 @@ function collisionBetweenItems(content, item1) {
     })
 }
 
+function collisionOutlineBag(bagWidth, bagHeight, item) {
+    const xCollision = item.x > bagWidth || item.x < 0 || item.x + item.width > bagWidth;
+    const yCollision = item.y > bagHeight || item.y < 0 || item.y + item.height > bagHeight;
+
+    return xCollision || yCollision;
+}
+
 function Bag({bag, width, height}) {
     const [content, setContent] = useState(cloneDeep(bag.content));
     const [currentBufferedItem, setCurrentBufferedItem] = useState(null);
@@ -148,11 +155,21 @@ function Bag({bag, width, height}) {
         const position = getCellPosition(cellWidth, cellHeight, x, y);
         const xPosition = position.x - relativeShiftPoint.x;
         const yPosition = position.y - relativeShiftPoint.y;
-        if (currentBufferedItem !== null && !collisionBetweenItems(content, {
-            ...currentBufferedItem,
-            x: xPosition,
-            y: yPosition
-        })) {
+        if (
+            currentBufferedItem !== null &&
+            !collisionBetweenItems(content, {
+                ...currentBufferedItem,
+                x: xPosition,
+                y: yPosition
+            }) &&
+            !collisionOutlineBag(
+                bag.x, bag.y,
+                {
+                    ...currentBufferedItem,
+                    x: xPosition,
+                    y: yPosition
+                })
+        ) {
             const newContent = content.map(item => {
                 if (isEqual(item, currentBufferedItem)) {
                     return ({
@@ -179,7 +196,7 @@ function Bag({bag, width, height}) {
 }
 
 
-function Inventory(props) {
+function Inventory() {
     return (
         <div
             className={s.container}
