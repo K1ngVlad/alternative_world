@@ -25,7 +25,8 @@ const testDataInventory = {
                     height: 2,
                     x: 1,
                     y: 0,
-                    z: 0
+                    z: 0,
+                    code: 124124124
                 },
                 {
                     id: 2,
@@ -35,12 +36,14 @@ const testDataInventory = {
                     height: 2,
                     x: 0,
                     y: 0,
-                    z: 0
+                    z: 0,
+                    code: 4141241
                 }
             ]
         }
     ],
 }
+
 
 function getCellPosition(cellWidth, cellHeight, x, y) {
     return {
@@ -53,8 +56,8 @@ function getCellPosition(cellWidth, cellHeight, x, y) {
 function checkItemOnPosition(content, x, y) {
 
     const item = content.find((item) => {
-        const xCollision = item.x <= x && x <= item.x + item.width;
-        const yCollision = item.y <= y && y <= item.y + item.height;
+        const xCollision = item.x <= x && x <= item.x + item.width - 1;
+        const yCollision = item.y <= y && y <= item.y + item.height - 1;
 
         return xCollision && yCollision;
     }) || null;
@@ -70,9 +73,28 @@ function checkItemOnPosition(content, x, y) {
     }
 }
 
+function collisionBetweenItems(content, item1) {
+    return content.find(item2 => {
+        if (item1.code === item2.code) {
+            return
+        }
+
+        const xCollision =
+            (item1.x >= item2.x && item1.x <= item2.x + item2.width - 1) ||
+            (item1.x + item1.width - 1 >= item2.x && item1.x + item1.width - 1 <= item2.x + item2.width - 1) ||
+            (item1.x <= item2.x + item2.width - 1 && item1.x + item1.width - 1 >= item2.x + item2.width - 1);
+        const yCollision =
+            (item1.y >= item2.y && item1.y <= item2.y + item2.height - 1) ||
+            (item1.y + item1.height - 1 >= item2.y && item1.y + item1.height - 1 <= item2.y + item2.height - 1) ||
+            (item1.y <= item2.y + item2.height - 1 && item1.y + item1.height - 1 >= item2.y + item2.height - 1);
+        return xCollision && yCollision;
+    })
+}
+
 function Bag({bag, width, height}) {
     const [content, setContent] = useState(cloneDeep(bag.content));
     const [currentBufferedItem, setCurrentBufferedItem] = useState(null);
+    const [relativeShiftPoint, setRelativeShiftPoint] = useState(null);
 
     const cellWidth = useMemo(() => width / bag.x, [width, bag.x]);
     const cellHeight = useMemo(() => height / bag.y, [height, bag.y]);
@@ -108,26 +130,35 @@ function Bag({bag, width, height}) {
     }), [content]);
 
     const handleMouseDown = useCallback((event) => {
-        // console.log('down')
         const x = event.pageX - container.current.offsetLeft;
         const y = event.pageY - container.current.offsetTop;
         const position = getCellPosition(cellWidth, cellHeight, x, y);
         const target = checkItemOnPosition(content, position.x, position.y);
+        setRelativeShiftPoint({
+            x: position.x - target?.item.x,
+            y: position.y - target?.item.y,
+        })
+
         setCurrentBufferedItem(target.item);
-    }, [setCurrentBufferedItem, content]);
+    }, [setCurrentBufferedItem, content, setRelativeShiftPoint]);
 
     const handleMouseUp = useCallback((event) => {
-        // console.log('up')
         const x = event.pageX - container.current.offsetLeft;
         const y = event.pageY - container.current.offsetTop;
         const position = getCellPosition(cellWidth, cellHeight, x, y);
-        if (currentBufferedItem !== null) {
+        const xPosition = position.x - relativeShiftPoint.x;
+        const yPosition = position.y - relativeShiftPoint.y;
+        if (currentBufferedItem !== null && !collisionBetweenItems(content, {
+            ...currentBufferedItem,
+            x: xPosition,
+            y: yPosition
+        })) {
             const newContent = content.map(item => {
                 if (isEqual(item, currentBufferedItem)) {
                     return ({
                         ...item,
-                        x: position.x,
-                        y: position.y
+                        x: xPosition,
+                        y: yPosition
                     });
                 }
 
@@ -138,7 +169,7 @@ function Bag({bag, width, height}) {
 
             setCurrentBufferedItem(null);
         }
-    }, [currentBufferedItem, setCurrentBufferedItem, content, bag]);
+    }, [currentBufferedItem, setCurrentBufferedItem, content, bag, relativeShiftPoint]);
 
     return (
         <div style={styles} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} ref={container}>
