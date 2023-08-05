@@ -1,1 +1,1 @@
-export { useAudio } from './useAudio'
+export { useAudio } from './useAudio';

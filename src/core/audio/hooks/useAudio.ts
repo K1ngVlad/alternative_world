@@ -1,9 +1,9 @@
-import { useContext } from 'react'
-import { AudioContext } from '../AudioCore'
+import { useContext } from 'react';
+import { AudioContext } from '../AudioCore';
 
 const useAudio = () => {
-    const audioCoreInit = useContext(AudioContext)
-    return audioCoreInit
-}
+    const audioCoreInit = useContext(AudioContext);
+    return audioCoreInit;
+};
 
-export { useAudio }
+export { useAudio };

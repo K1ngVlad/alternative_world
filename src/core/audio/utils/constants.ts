@@ -1,5 +1,5 @@
-import { sounds } from '../sounds'
+import { sounds } from '../sounds';
 
-const soundObj = Object.assign({}, sounds)
+const soundObj = Object.assign({}, sounds);
 
-export { soundObj }
+export { soundObj };

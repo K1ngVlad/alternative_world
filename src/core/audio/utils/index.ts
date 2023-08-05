@@ -1,1 +1,1 @@
-export { soundObj } from './constants'
+export { soundObj } from './constants';

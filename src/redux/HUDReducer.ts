@@ -1,28 +1,23 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from './store'
+import { createSlice } from '@reduxjs/toolkit';
+import { RootState } from './store';
 
-import { HUDTypes } from 'src/types'
-
-type AudioCollection = '0' | '1' | '2' | '3' | '4'
+import { HUDTypes } from 'src/types';
 
 export interface CoreState {
     interface: {
         menu: {
-            main: boolean
-        }
+            main: boolean;
+        };
         HUD: {
-            inventory: Array<HUDTypes.Bag>
-            openedBags: Array<HUDTypes.Bag>
-            bufferItem: HUDTypes.ItemExemplar | null
-            initedProcess: boolean
-        }
-    }
+            inventory: Array<HUDTypes.Bag>;
+            openedBags: Array<HUDTypes.Bag>;
+            bufferItem: HUDTypes.ItemExemplar | null;
+            initedProcess: boolean;
+        };
+    };
     settings: {
-        volme: number
-    }
-    audio: {
-        played: Array<AudioCollection>
-    }
+        volme: number;
+    };
 }
 
 const initialState: CoreState = {
@@ -140,61 +135,47 @@ const initialState: CoreState = {
     settings: {
         volme: 100,
     },
-    audio: {
-        played: [],
-    },
-}
+};
 
 export const coreStateSlice = createSlice({
     name: 'CoreState',
     initialState,
     reducers: {
         openMainMenu: (state) => {
-            state.interface.menu.main = true
+            state.interface.menu.main = true;
         },
         closeMainMenu: (state) => {
-            state.interface.menu.main = false
+            state.interface.menu.main = false;
         },
         openBag: (state, action) => {
-            state.interface.HUD.openedBags.push(action.payload)
+            state.interface.HUD.openedBags.push(action.payload);
         },
         closeBag: (state, action) => {
             state.interface.HUD.openedBags =
                 state.interface.HUD.openedBags.filter(
                     (bag) => bag.code !== action.payload.code
-                )
+                );
         },
         moveItem: (state, action) => {
             state.interface.HUD.inventory.find(
                 (bag) => bag.code === action.payload.code
-            ).inner = action.payload
+            ).inner = action.payload;
         },
         moveItemBetweenBags: (state, action) => {},
         setBufferItem: (state, action) => {
-            state.interface.HUD.bufferItem = action.payload
+            state.interface.HUD.bufferItem = action.payload;
         },
         setVolme: (state, action) => {
-            state.settings.volme = action.payload
+            state.settings.volme = action.payload;
         },
         addBag: (state, action) => {
-            state.interface.HUD.inventory.push(action.payload)
+            state.interface.HUD.inventory.push(action.payload);
         },
         initProcess: (state) => {
-            state.interface.HUD.initedProcess = true
-        },
-
-        addSound: (state, action) => {
-            state.audio.played.push(action.payload)
-        },
-
-        clearSound: (state, action) => {
-            const index = state.audio.played.indexOf(action.payload)
-            if (index !== -1) {
-                state.audio.played.splice(index, 1)
-            }
+            state.interface.HUD.initedProcess = true;
         },
     },
-})
+});
 export const {
     openMainMenu,
     closeMainMenu,
@@ -205,8 +186,6 @@ export const {
     setVolme,
     addBag,
     initProcess,
-    addSound,
-    clearSound,
-} = coreStateSlice.actions
-export const coreStateSelector = (state: RootState) => state.coreStateReducer
-export default coreStateSlice.reducer
+} = coreStateSlice.actions;
+export const coreStateSelector = (state: RootState) => state.coreStateReducer;
+export default coreStateSlice.reducer;
